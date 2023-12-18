@@ -1,7 +1,12 @@
 import "./App.css";
+import LoginPage from "./pages/Auth/Login";
 
 function App() {
-  return <>React with vite</>;
+  return (
+    <>
+      <LoginPage />
+    </>
+  );
 }
 
 export default App;
