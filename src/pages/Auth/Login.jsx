@@ -10,6 +10,9 @@ import {
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { loginValidationSchema } from "../../utils/validations";
+import { api } from "../../services/api";
+import { API_ENDPOINTS } from "../../utils/apiEndpoints";
+import { getEncrypted } from "../../utils/utils";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -19,7 +22,13 @@ const Login = () => {
   };
 
   const handleSubmit = (values) => {
-    console.log(values);
+    console.log({ values });
+
+    const encryp = getEncrypted(values);
+
+    api.post(API_ENDPOINTS.LOGIN, encryp).then(({ data }) => {
+      console.log({ data });
+    });
   };
 
   const formik = useFormik({
