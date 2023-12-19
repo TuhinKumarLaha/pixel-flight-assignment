@@ -12,23 +12,42 @@ import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { loginValidationSchema } from "../../utils/validations";
 import { api } from "../../services/api";
 import { API_ENDPOINTS } from "../../utils/apiEndpoints";
-import { getEncrypted } from "../../utils/utils";
+import { getDecrypted, getEncrypted } from "../../utils/utils";
+import { useNavigate } from "react-router-dom";
+import { ROUTES } from "../../utils/routes";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const navigate = useNavigate();
+
   const initialValues = {
     email: "",
     password: "",
   };
 
   const handleSubmit = (values) => {
-    console.log({ values });
-
+    // console.log({ values });
+    setIsLoading(true);
     const encryp = getEncrypted(values);
+    // console.log({ encryp });
 
-    api.post(API_ENDPOINTS.LOGIN, encryp).then(({ data }) => {
-      console.log({ data });
-    });
+    api
+      .post(API_ENDPOINTS.LOGIN, encryp)
+      .then(({ data }) => {
+        // console.log({ data: getDecrypted(data.response_data) });
+
+        if (data?.main_data?.res_code === 201) {
+          navigate(ROUTES.SEARCH_FLIGHT);
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   };
 
   const formik = useFormik({
@@ -81,8 +100,14 @@ const Login = () => {
           }}
         />
 
-        <Button type="submit" variant="contained" color="primary" fullWidth>
-          Log In
+        <Button
+          type="submit"
+          variant="contained"
+          color="primary"
+          fullWidth
+          disabled={isLoading}
+        >
+          {isLoading ? "Please wait..." : "Log In"}
         </Button>
       </form>
     </Container>
