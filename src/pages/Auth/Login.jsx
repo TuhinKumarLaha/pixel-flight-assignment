@@ -12,13 +12,13 @@ import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { loginValidationSchema } from "../../utils/validations";
 import { api } from "../../services/api";
 import { API_ENDPOINTS } from "../../utils/apiEndpoints";
-import { getDecrypted, getEncrypted } from "../../utils/utils";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../utils/routes";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const navigate = useNavigate();
 
@@ -28,22 +28,21 @@ const Login = () => {
   };
 
   const handleSubmit = (values) => {
-    // console.log({ values });
     setIsLoading(true);
-    const encryp = getEncrypted(values);
-    // console.log({ encryp });
+    setError("");
 
     api
-      .post(API_ENDPOINTS.LOGIN, encryp)
+      .post(API_ENDPOINTS.LOGIN, values)
       .then(({ data }) => {
-        // console.log({ data: getDecrypted(data.response_data) });
-
-        if (data?.main_data?.res_code === 201) {
+        if (data?.main_data?.res_code === 200) {
           navigate(ROUTES.SEARCH_FLIGHT);
+        } else {
+          setError(data?.main_data?.response);
         }
       })
       .catch((error) => {
         console.log(error);
+        setError("Something went wrong");
       })
       .finally(() => {
         setIsLoading(false);
@@ -99,7 +98,11 @@ const Login = () => {
             ),
           }}
         />
-
+        {error && (
+          <Typography variant="caption" color="red">
+            {error}
+          </Typography>
+        )}
         <Button
           type="submit"
           variant="contained"
